@@ -1,6 +1,6 @@
 # Viscoelasticity
 <img src="viscoelastic_deformation_hand_press.jpg" align="right" />
-This repository explains how to build a simulation for viscoelastic material deformation using <code>team-pancho/FEM3D</code> MATLAB package. Note that this package has not yet released, but will be available under 
+This repository explains how to build a simulation for viscoelastic material deformation using <code>team-pancho/FEM3D</code> MATLAB package. Note that this package has not yet been released, but will be available under 
 <a href="https://github.com/team-pancho">team-pancho GitHub page</a> soon. The script <code>viscoelastic_deformation_hand_press.m</code> is the main file that handles building the simulation. The produced simulation is available <a href="https://youtu.be/KWdFGECue0g"> here </a>.
 
 ## Goal
