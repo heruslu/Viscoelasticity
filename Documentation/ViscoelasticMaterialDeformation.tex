@@ -1,0 +1,183 @@
+\documentclass[12pt,english]{article}
+\usepackage{amsfonts,babel,amssymb,amsmath,amsthm}
+\usepackage{graphicx}
+\usepackage{framed}
+\usepackage{mathabx}
+
+%\usepackage[notcite,notref]{showkeys}
+\usepackage{float} % to use \begin{figure}[H], which inserts the figure wherever you want
+\usepackage[utf8]{inputenc} % gives extra characters
+
+\evensidemargin 0cm \oddsidemargin 0cm \setlength{\topmargin}{-1cm}
+\setlength{\textheight}{23truecm} \textwidth 16truecm
+
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{corollary}[proposition]{Corollary}
+\newtheorem{lemma}[proposition]{Lemma}
+\newtheorem{theorem}[proposition]{Theorem}
+
+\newtheorem{remark}{Remark}[section]
+
+\numberwithin{equation}{section}
+
+% Generic 
+\newcommand{\ds}{\displaystyle}
+\newcommand{\jump}[1]{\llbracket#1\rrbracket}
+\newcommand{\ave}[1]{\{\!\!\{#1\}\!\!\}}
+\newcommand{\energy}[1]{|\!|\!|#1|\!|\!|}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\R}{{\mathbb R}}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Ndof}{N_{\mathrm{dof}}}
+
+
+% Latex shortcuts
+\newcommand{\bff}{\mathbf}
+\newcommand{\mb}{\mathbf}
+\newcommand{\mc}{\mathcal}
+\newcommand{\mr}{\mathrm}
+
+% New math
+\renewcommand{\Re}{\mathrm{Re}\,}
+
+
+% HEADMATTER
+
+\title{Viscoelastic material deformation}
+
+\author{Hasan Eruslu \\
+University of Delaware}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Fractional Zener model} \label{sec:2.1}
+Our goal is computing a FEM approximation of the viscoelastic wave propagation problem with Fractional Zener model: for $t \geq 0$
+\begin{subequations} \label{eq:2.0}
+	\begin{alignat}{6}
+	-\mathrm{div}\,\boldsymbol\sigma(t)+\rho\, \ddot{ \mathbf u} (t) &=\mathbf f(t)
+	&\qquad &\mbox{in $\Omega$},\\
+	\mathbf u(t) &=\mathbf u_D(t) &\qquad&\mbox{on $\Gamma_D$},\\
+	\boldsymbol\sigma(t)\,\boldsymbol\nu &=\boldsymbol\sigma_N(t)\,\boldsymbol\nu
+	&\qquad&\mbox{on $\Gamma_N$},
+	\end{alignat}
+where the stress-strain relation can be written in Laplace domain as
+	\begin{align} \label{eq:2.0d}
+		\mb S(s) &=\mu(s) \boldsymbol\varepsilon(\mathbf U(s))+\lambda(s) (\nabla\cdot\mathbf U(s))\mathrm I \qquad \forall s \in \C_+ : = \{ s \in \C : \Re s > 0 \}, 
+	\end{align}
+with
+	\begin{align}
+		\mu(s) = \frac{m_\mu + b_\mu s^{\nu_\mu}}{1 + a s^{\nu_\mu}}, \qquad 
+		\lambda(s) = \frac{m_\lambda + b_\lambda s^{\nu_\lambda}}{1 + a s^{\nu_\lambda}}
+	\end{align}
+for $m_\mu,b_\mu,\nu_\mu,m_\lambda,b_\lambda,\nu_\lambda \in L^\infty(\Omega)$ strictly positive satisfying
+	\[
+		a m_\mu \leq b_\mu, \qquad a m_\lambda \leq b_\lambda.
+	\] 
+Here we assume homogeneous initial conditions
+	\begin{align}
+		\mb u (0) = \mb 0, \qquad \dot{\mb u}(0) = \mb 0.
+	\end{align}
+\end{subequations}
+
+\subsection{Parameter details}
+\begin{enumerate}
+\item
+$\rho$: Mass density function can be heterogenous. Name in the simulation:  {\tt rho} 
+\item
+$m_\mu,b_\mu,\nu_\mu,m_\lambda,b_\lambda,\nu_\lambda$: Viscoelastic parameters can be heterogenous. Corresponding names in the simulation: {\tt m\_mu, b\_mu, nu\_mu, m\_lam, b\_lam, nu\_lam}
+\end{enumerate}
+
+
+\section{Solver details}
+Viscoelasticity solver computes the FEM coefficient vector of the displacement and the stress at DOF. This is done via the following steps.
+\begin{enumerate}
+\item
+Sample the forcing term, Dirichlet and Neumann data at the time steps. This is done in a parallel loop using a helper function. Depending on the time stepping method, we sample a little differently:
+\begin{enumerate}
+\item
+	\textbf{Sampling for the CQ method.} We create $3\Ndof \times 1$ vectors 
+			\[
+				\mb f^n, \quad \mb u^n_{h,D}, \quad \mb t^n, \qquad n=1,\ldots,N_t
+			\]
+		corresponding to load, Dirichlet and Neumann approximations at time steps $t_n = n \Delta$ (uniform time steps). Then we combine all these samples and construct the $6 \Ndof \times N_t$ matrix $\mr X$ in the following way
+		\begin{align*}
+		\mr X = \left[ \begin{array}{c|c|c|c}
+			&	 & 		& 	\\
+		X_1  & X_2 & \cdots & X_{N_t}\\
+			&	 & 		& 	\\		
+		\end{array} \right],
+		\end{align*}
+	where each column is
+		\begin{align*}
+			X_n = \left[ \begin{array}{c}
+			\mb u^n_{h,D} \\[1em]
+			\mb f^n + \mb t^n
+			\end{array} \right ] \qquad n = 1, \ldots, N_t.
+		\end{align*}
+\item
+	\textbf{Sampling for the RKCQ method.} We run a parallel loop over time steps $n=1,\ldots,N_t - 1$, and a serial loop over stages $\ell = 1,\ldots, S$ to create $3\Ndof \times 1$ vectors
+			\[
+				\mb f^{n,\ell}, \quad \mb u^{n,\ell}_{h,D}, \quad \mb t^{n,\ell},
+			\]
+		corresponding to load, Dirichlet and Neumann approximations at time steps 
+			\[
+				 t_{n,\ell} = (n  +  c_\ell) \Delta, \qquad n = 1,\ldots,N_t, \quad \ell = 1,\ldots,S.
+			\]
+		Here the index $\ell$ corresponds to the variable {\tt ns} in the code. The vector $\mb c$, on the other hand, is from the Butcher tableau and equal to the row sums of the $S \times S$ matrix $\mathbf A$. This matrix is an optional input if one wants to use Runge-Kutta as  time-stepping method.
+		
+		Now we first create $6 \Ndof \times N_t$ matrices
+		\begin{align*}
+		\mr X^\ell = \left[ \begin{array}{c|c|c|c}
+			&	 & 		& 	\\
+		X_1^\ell  & X_2^\ell & \cdots & X_{N_t}^\ell\\
+			&	 & 		& 	\\		
+		\end{array} \right] \qquad \ell = 1, \ldots, S
+		\end{align*}
+	where each column is
+		\begin{align*}
+			X^\ell_n = \left[ \begin{array}{c}
+			\mb u^{n,\ell}_{h,D} \\[1em]
+			\mb f^{n,\ell} + \mb t^{n,\ell}
+			\end{array} \right ] \qquad n = 1,\ldots,N_t, \quad \ell = 1,\ldots,S.
+		\end{align*}
+	Then we vertically stack matrices $\mr X^\ell$ for $\ell = 1,\ldots,S$
+		\begin{align*}
+			\mr X = \left[ \begin{array}{c}
+			\mr X^1 \\[1em]
+			\vdots \\[1em]
+			\mr X^S
+			\end{array} \right ],
+		\end{align*}
+	to obtain a single $6 \Ndof S \times N_t$ matrix.
+
+\end{enumerate}
+	
+\item 
+We construct the transfer function $\mc F_h$ in the Laplace domain such that
+\begin{align*}
+		\mc F_h(s,\mb u_D,\mb f,\bs \sigma_N) = (\mb u^h, \bs \sigma^h)
+	\end{align*}
+is FEM approximation of
+	\begin{alignat*}{6}
+	-\mathrm{div}\,\boldsymbol\sigma+s^2\,\rho\, \mathbf u &=\mathbf f
+	&\qquad &\mbox{in $\Omega$},\\
+	\mathbf u &=\mathbf u_D &\qquad&\mbox{on $\Gamma_D$},\\
+	\boldsymbol\sigma\,\boldsymbol\nu &=\boldsymbol\sigma_N\,\boldsymbol\nu
+	&\qquad&\mbox{on $\Gamma_N$}.
+	\end{alignat*}
+\item
+Using the transfer function $\mc F_h$ and sampled data $\mr X$ we perform an all-at-once CQ time stepping.
+\item
+We finally output the FEM approximation of displacement and post-processed stress 
+	\[
+		\mb u^n_h, \quad \bs \sigma^n_h
+	\]
+at the time steps $t_n$ for $n = 1, \cdots, N$. 
+\end{enumerate}
+
+\end{document}
