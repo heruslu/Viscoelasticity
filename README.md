@@ -11,7 +11,7 @@ Here we will demonstrate how to build a simulation using this package. This exam
 
 ## Goal
 We want to compute a FEM approximation of the deformation of a viscoelastic material with isotropic fractional Zener model (See \[[Section 4, 1](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\]).
-Numerical solver is based on FEM for space and Convolution Quadrature (CQ) \[[2](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\] for time discretization.
+Numerical solver is based on FEM for space and Convolution Quadrature (CQ) \[[2](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\] for time discretization. https://youtu.be/KWdFGECue0g
 
 ## Desiging the MATLAB script
 
