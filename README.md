@@ -16,11 +16,11 @@ Numerical solver is based on FEM for space and Convolution Quadrature (CQ) \[2\]
 ## Desiging the MATLAB script
 
 ### Space and time discretization
-We start with setting the polinomial degree for the FEM solver. 
+We start with setting the polynomial degree for the FEM solver. 
 
 `` k = 3;``
 
-We choose a final simulation time. It is know that CQ solver error accumulates in time \[3\], so for large simulation time one needs to choose small time stepping.
+We choose a final simulation time. It is know that the error of the CQ solver accumulates in time \[3\]. Therefore, for large simulation time, one needs to choose small time stepping.
 
 ``
 M = 40;
@@ -28,7 +28,7 @@ dt = 0.04;
 ``
 
 ### Generating the mesh for space and time
-Because of the implementation of `meshRectPrism`, to mark the bottom faces of the prism we set
+Because of the implementation of `meshRectPrism`, to mark the bottom faces of the prism, we set
  
 ``DBC = 1``
  
@@ -48,12 +48,12 @@ Create enhanced properties of the mesh `T`,
 ```
 T = edgesAndFaces(T); T = enhanceGrid3D(T);
 ```
-and get the list of Neumann faces
+and get the list of Neumann faces.
 ```
 neuList = {find(T.faces(4,:)==2)};
 ```
 
-Generate the temporal mesh using the given time-step and final time
+Generate the temporal mesh using the given time-step and final time.
 ```
 time = 0:dt:M; nt = length(time);
 ```
@@ -85,11 +85,11 @@ zero = @(x,y,z,t) 0*x;
 uD{1} = zero; uD{2} = zero; uD{3} = zero;
 ```
 #### Hand press as Neumann condition
-Hand press will be activated in the time interval `[tA,tB]`. We define the time interval as a certain proportion of the final time (`M`) of the simulation. The proportion is controlled by `wP`
+Hand press will be activated in the time interval `[tA,tB]`. We define the time interval as a certain proportion of the final time (`M`) of the simulation. The rate of the proportion is controlled by `wP`.
 ```
 wP = 10; tA = M/wP; tB = 2*M/wP;
 ```
-Because of the stability issues, the hand press effect should be smooth in the interval `[tA,tB]`. We achieve thi via the following
+Because of the stability issues, the hand press effect should be smooth in the interval `[tA,tB]`. We achieve this with the `window` function.
 ```
 punchwf = window(tA,tA+2*dt,tB-2*dt,tB);
 ```
@@ -97,7 +97,7 @@ Import the function `hand` which is an indicator function for a human hand in `[
 ```
 human_hand_print
 ```
-Set the hand press area and magnitude of this press
+Set the hand press area and magnitude of this press.
 ```
 punchArea = @(x,y,z) hand(0.5*(x-1),0.5*(y+0.5));
 punchMagnitude = -2.8;
@@ -120,7 +120,7 @@ f{3} = @(x,y,z,t) 0*x - gravity.*gravitywf(t).*rho(x,y,z);
 ```
 
 ### Solver
-We compute `uh, vh, wh` as `x,y,z` components of the displacement, and `sxxh,syyh,szzh,syzh,sxzh,sxyh` the components of the symmetric stress tensor. These quantities are FEM coefficient matrices for each DOF and each time-step.
+We compute `uh, vh, wh` as `x,y,z` components of the displacement, and `sxxh,syyh,szzh,syzh,sxzh,sxyh` as the components of the symmetric stress tensor. These quantities are FEM coefficient matrices for each DOF and each time-step.
 ```
 [uh,vh,wh,sxxh,syyh,szzh,syzh,sxzh,sxyh] = ...
     FEMViscoelasticitySimulation3D({m_mu,b_mu,a_mu,nu_mu},...
@@ -128,7 +128,7 @@ We compute `uh, vh, wh` as `x,y,z` components of the displacement, and `sxxh,syy
 ```
 
 ### Creating an animation
-Our FEM solver for this simualtion is using `k=3` degree polynomials. To obtain a better simulation we interpolate our FEM solution at high order quadrature points. We only compute the deformation at the surface of the solid. We also create a surface mesh at these quadrature points.
+Our FEM solver for this simualtion is based on `k=3` degree polynomials. To obtain a smooth simulation we interpolate our FEM solution at high order quadrature points. We only compute the deformation at the surface of the solid, and create a surface mesh at these quadrature points.
 ```
 kinterp = 9;
 uhtotSurf = interpolateFEM3D([uh;vh;wh],T,k,kinterp);
@@ -145,7 +145,7 @@ Nvhand = length(Thand.Z);
 whhand = zeros(Nvhand,nt) + zmove;
 uhtotHand = [zeros(Nvhand,nt);zeros(Nvhand,nt)-0.9;whhand];
 ```
-Finally we construct the animation with a choice of a pair of colors for the solid and the hand
+Finally we construct the animation with a choice of a pair of colors for the solid and the hand.
 ```
 movie_fn =@() axis('off');
 color = {[151,190,162]/256,[175, 110, 81]/256};
@@ -154,6 +154,8 @@ animateMultSurfFEM3D({uhtotSurf,uhtotHand},{Tsurf,Thand},...
 ```
 
 ### References
-\[1\]: T.S. Brown, S. Du, H. Eruslu, and F.-J. Sayas. Analysis of models for viscoelastic wave propagation. Applied Mathematics and Nonlinear Sciences, 2018. [DOI:10.21042/AMNS.2018.1.00006](DOI:10.21042/AMNS.2018.1.00006)
-\[2\] M. Hassell, and F.-J. Sayas. Convolution Quadrature for Wave Simulations. Numerical simulation in physics and engineering. SEMA SIMAI Springer Ser.(9) pp 71-159, 2016. [Chapter](https://link-springer-com.udel.idm.oclc.org/chapter/10.1007/978-3-319-32146-2_2)
-\[3\]: H. Eruslu, and F.-J. Sayas. Brushing up a theorem by Lehel Banjai on the convergence of Trapezoidal Rule Convolution Quadrature, 2019 [arxiv:1903.09031](https://arxiv.org/abs/1903.09031)
+\[1\]: T.S. Brown, S. Du, H. Eruslu, and F.-J. Sayas. Analysis of models for viscoelastic wave propagation. Applied Mathematics and Nonlinear Sciences, 2018. ([DOI:10.21042/AMNS.2018.1.00006](https://doi.org/10.1093/imanum/drx079))
+
+\[2\] M. Hassell, and F.-J. Sayas. Convolution Quadrature for Wave Simulations. Numerical simulation in physics and engineering. SEMA SIMAI Springer Ser.(9) pp 71-159, 2016. ([Chapter](https://link-springer-com.udel.idm.oclc.org/chapter/10.1007/978-3-319-32146-2_2))
+
+\[3\]: H. Eruslu, and F.-J. Sayas. Brushing up a theorem by Lehel Banjai on the convergence of Trapezoidal Rule Convolution Quadrature, 2019 ([arxiv:1903.09031](https://arxiv.org/abs/1903.09031))
