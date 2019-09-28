@@ -1,17 +1,9 @@
 # Viscoelasticity
-This repository explains how to build a simulation for viscoelastic material deformation using `team-pancho/FEM3D` MATLAB package. Note that this package has not yet released, but will be available under [team-pancho GitHub page](https://github.com/team-pancho) soon.
-
-Here we will demonstrate how to build a simulation using this package. This example requires the following functions from `team-pancho/FEM3D`:
-* `meshRectPrism`
-* `window`
-* `FEMViscoelastictySimulation3D`
-* `interpolateFEM3D`
-* `interpolateMesh`
-* `animateMultSurfFEM3D`
+This repository explains how to build a simulation for viscoelastic material deformation using `team-pancho/FEM3D` MATLAB package. Note that this package has not yet released, but will be available under [team-pancho GitHub page](https://github.com/team-pancho) soon. The script `viscoelastic_deformation_hand_press.m` is the main file that handles building the simulation. 
 
 ## Goal
 We want to compute a FEM approximation of the deformation of a viscoelastic material with isotropic fractional Zener model (See \[[Section 4, 1](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\]).
-Numerical solver is based on FEM for space and Convolution Quadrature (CQ) \[[2](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\] for time discretization. https://youtu.be/KWdFGECue0g
+Numerical solver is based on FEM for space and Convolution Quadrature (CQ) \[[2](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\] for time discretization. The animation produced by `viscoelastic_deformation_hand_press` is available [here](https://youtu.be/KWdFGECue0g). 
 
 ## Desiging the MATLAB script
 
