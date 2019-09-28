@@ -1,7 +1,7 @@
 # Viscoelasticity
 <img src="viscoelastic_deformation_hand_press.jpg" align="right" />
 This repository explains how to build a simulation for viscoelastic material deformation using <code>team-pancho/FEM3D</code> MATLAB package. Note that this package has not yet been released, but will be available under 
-<a href="https://github.com/team-pancho">team-pancho GitHub page</a> soon. The script <code>viscoelastic_deformation_hand_press.m</code> is the main file that handles building the simulation. The produced simulation is available <a href="https://youtu.be/KWdFGECue0g"> here </a>.
+<a href="https://github.com/team-pancho">team-pancho GitHub page</a> soon. The script <code>viscoelastic_deformation_hand_press.m</code> is the main file that handles building the simulation, and the animation it produces is available <a href="https://youtu.be/KWdFGECue0g"> here </a>.
 
 ## Goal
 We want to compute a FEM approximation of the deformation of a viscoelastic material with isotropic fractional Zener model (See \[[Section 4, 1](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)\]).
