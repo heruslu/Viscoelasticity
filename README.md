@@ -10,7 +10,7 @@ Here we will demonstrate how to build a simulation using this package. This exam
 * `animateMultSurfFEM3D`
 
 ## Goal
-We want to compute a FEM approximation of the deformation of a viscoelastic material with isotropic fractional Zener model (See \[Section 4, 1\]).
+We want to compute a FEM approximation of the deformation of a viscoelastic material with isotropic fractional Zener model (See [Section 4, 1](https://github.com/heruslu/Viscoelasticity/blob/master/README.md#references)).
 Numerical solver is based on FEM for space and Convolution Quadrature (CQ) \[2\] for time discretization.
 
 ## Desiging the MATLAB script
